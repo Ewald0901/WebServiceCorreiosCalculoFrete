@@ -12,17 +12,42 @@ namespace Consulta_Webservice_Correios
         {
             CalcularPrecoPrazo();
         }
+        private static bool validarCep(string cep)
+        {
+            string _cep = cep.Trim();
+            _cep = _cep.Replace("-", "");
+
+            if (_cep.Length == 8)
+                return true;
+
+            else
+                return false;
+        }
 
         public static void CalcularPrecoPrazo()
         {
             System.Console.Write("Digite o código do tipo de envio: ");
             var nCdServico = System.Console.ReadLine();
-            System.Console.Write("Digite o CEP de origem: ");
-            var sCepOrigem = System.Console.ReadLine();
-            System.Console.Write("Digite o CEP de destino: ");
-            var sCepDestino = System.Console.ReadLine();
-            System.Console.Write("Digite o peso (kg): ");
 
+            System.Console.Write("Digite o CEP de origem: ");
+            var sCepOrigem = System.Console.ReadLine();           
+            while(!validarCep(sCepOrigem))
+            {
+                System.Console.WriteLine("Cep de Origem Digitado inválido. ");
+                System.Console.Write("Digite o CEP de origem novamente: ");
+                sCepOrigem = System.Console.ReadLine();
+            }
+
+            System.Console.Write("Digite o CEP de destino: ");
+            var sCepDestino = System.Console.ReadLine();           
+            while (!validarCep(sCepDestino))
+            {
+                System.Console.WriteLine("Cep de Destino Digitado inválido. ");
+                System.Console.Write("Digite o CEP de destino novamente: ");
+                sCepOrigem = System.Console.ReadLine();
+            }
+
+            System.Console.Write("Digite o peso (kg): ");
             var nVlPeso = System.Console.ReadLine();
             while (nVlPeso.Contains(","))
             {
@@ -57,14 +82,11 @@ namespace Consulta_Webservice_Correios
             var nVlValorDeclarado = System.Console.ReadLine();
             System.Console.Write("Aviso de recebimento (S/N)?: ");
             var sCdAvisoRecebimento = System.Console.ReadLine();
-
-
             string nCdEmpresa = string.Empty;
             string sDsSenha = string.Empty;            
 
             try
             {
-
                 WSCorreiosCalculaPreco.CalcPrecoPrazoWSSoapClient ws = new WSCorreiosCalculaPreco.CalcPrecoPrazoWSSoapClient();
 
                 var resposta = ws.CalcPrecoPrazo(nCdEmpresa,sDsSenha,nCdServico,
@@ -74,9 +96,11 @@ namespace Consulta_Webservice_Correios
                 if (respostaReal != null)
                 {
                     System.Console.WriteLine("\n");
-                    System.Console.WriteLine("Entrega em mãos: {0}", (respostaReal.EntregaDomiciliar.Equals("N") ? "Não" : "Sim"));
-                    System.Console.WriteLine("Prazo: {0} dia(s)", respostaReal.PrazoEntrega);
-                    System.Console.WriteLine("Valor: R$ {0}", respostaReal.Valor);
+                    System.Console.WriteLine("Valor Aviso Recebimento: {0}", (respostaReal.ValorAvisoRecebimento));
+                    System.Console.WriteLine("Valor Entrega em mãos: {0}", (respostaReal.ValorMaoPropria));
+                    System.Console.WriteLine("Valor sobre o Valor Declarado: {0}", (respostaReal.ValorValorDeclarado));
+                    System.Console.WriteLine("Prazo estimado: {0} dia(s)", respostaReal.PrazoEntrega);
+                    System.Console.WriteLine("Valor Total: R$ {0}", respostaReal.Valor);
                 }
                 else
                 {
