@@ -14,10 +14,10 @@ namespace Consulta_Webservice_Correios
         }
         private static bool validarCep(string cep)
         {
-            string _cep = cep.Trim();
-            _cep = _cep.Replace("-", "");
+            string _cep = cep.Trim(); // remove espaços em branco
+            _cep = _cep.Replace("-", ""); // substitui o traço 
 
-            if (_cep.Length == 8)
+            if (_cep.Length == 8)// verifica se o tamanho é 8
                 return true;
 
             else
@@ -59,7 +59,7 @@ namespace Consulta_Webservice_Correios
             System.Console.Write("Digite o código do formato (caixa, envelope, etc): ");
             var nCdFormato = System.Console.ReadLine();
 
-            while (nCdFormato.Contains(",") || nCdFormato.Contains("."))
+            while (nCdFormato.Contains(",") || nCdFormato.Contains(".") || string.IsNullOrEmpty(nCdFormato))
             {
                 System.Console.WriteLine("O Código informado é inválido, digite 1 para Caixa / Pacote, 2 para Rolo / Prisma ou 3 para envelop");
                 System.Console.Write("Digite o código do formato (caixa, envelope, etc): ");
@@ -87,8 +87,13 @@ namespace Consulta_Webservice_Correios
 
             try
             {
-                WSCorreiosCalculaPreco.CalcPrecoPrazoWSSoapClient ws = new WSCorreiosCalculaPreco.CalcPrecoPrazoWSSoapClient();
+                WSCorreiosCalculaPreco.CalcPrecoPrazoWSSoapClient ws = new WSCorreiosCalculaPreco.CalcPrecoPrazoWSSoapClient(); // cria uma nova instência do serviço do cliente dos correios
 
+
+                var versao = ws.getVersao();
+
+
+                // consome o WS para Calcular preço e prazo
                 var resposta = ws.CalcPrecoPrazo(nCdEmpresa,sDsSenha,nCdServico,
                     sCepOrigem,sCepDestino,nVlPeso, int.Parse(nCdFormato),decimal.Parse(nVlComprimento),
                     decimal.Parse(nVlAltura),decimal.Parse(nVlLargura),decimal.Parse(nVlDiametro),sCdMaoPropria.ToUpper(),decimal.Parse(nVlValorDeclarado),sCdAvisoRecebimento.ToUpper());
@@ -101,6 +106,9 @@ namespace Consulta_Webservice_Correios
                     System.Console.WriteLine("Valor sobre o Valor Declarado: {0}", (respostaReal.ValorValorDeclarado));
                     System.Console.WriteLine("Prazo estimado: {0} dia(s)", respostaReal.PrazoEntrega);
                     System.Console.WriteLine("Valor Total: R$ {0}", respostaReal.Valor);
+                    System.Console.WriteLine("\n \n");
+                    System.Console.WriteLine("Versão do Serviço dos correios {0}", versao.versaoAtual);
+
                 }
                 else
                 {
