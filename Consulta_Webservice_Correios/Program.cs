@@ -97,6 +97,11 @@ namespace Consulta_Webservice_Correios
                 var resposta = ws.CalcPrecoPrazo(nCdEmpresa,sDsSenha,nCdServico,
                     sCepOrigem,sCepDestino,nVlPeso, int.Parse(nCdFormato),decimal.Parse(nVlComprimento),
                     decimal.Parse(nVlAltura),decimal.Parse(nVlLargura),decimal.Parse(nVlDiametro),sCdMaoPropria.ToUpper(),decimal.Parse(nVlValorDeclarado),sCdAvisoRecebimento.ToUpper());
+
+                if (!resposta.Servicos.Select(x => x.Erro).First().Equals(""))
+                    throw new Exception(resposta.Servicos.First().MsgErro);
+
+
                 var respostaReal = resposta.Servicos.FirstOrDefault();
                 if (respostaReal != null)
                 {
